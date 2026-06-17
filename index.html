@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="天気比較" />
+  <meta name="theme-color" content="#2563eb" />
+  <title>天気予報比較サイト</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.x/dist/tabler-icons.min.css" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; background: #f3f4f6; font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', sans-serif; }
+
+    .container { max-width: 640px; margin: 0 auto; background: #fff; min-height: 100vh; box-shadow: 0 0 20px rgba(0,0,0,0.08); }
+
+    .hdr { background: #2563eb; color: #fff; text-align: center; padding: 16px; font-size: 17px; font-weight: 500; }
+
+    .search-bar { display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-bottom: 0.5px solid #e5e7eb; }
+    .search-bar input { flex: 1; padding: 8px 11px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 14px; background: #fff; color: #111; outline: none; -webkit-appearance: none; }
+    .search-bar input:focus { border-color: #2563eb; }
+    .search-bar button { background: #2563eb; color: #fff; border: none; padding: 8px 14px; border-radius: 8px; font-size: 13px; cursor: pointer; white-space: nowrap; -webkit-tap-highlight-color: transparent; }
+
+    .loc-bar { padding: 7px 14px; font-size: 12px; color: #6b7280; display: flex; align-items: center; gap: 6px; border-bottom: 0.5px solid #e5e7eb; }
+    .badge { background: #eff6ff; color: #1d4ed8; font-size: 11px; padding: 2px 8px; border-radius: 10px; }
+
+    .tabs { display: flex; background: #f9fafb; border-bottom: 1px solid #e5e7eb; }
+    .tab { flex: 1; padding: 10px; text-align: center; font-size: 14px; color: #6b7280; cursor: pointer; border-bottom: 2px solid transparent; -webkit-tap-highlight-color: transparent; user-select: none; }
+    .tab.active { color: #2563eb; border-bottom: 2px solid #2563eb; font-weight: 500; }
+
+    .week-label { text-align: center; font-size: 12px; color: #6b7280; padding: 10px 0 4px; }
+
+    .col-headers { display: grid; grid-template-columns: 56px 1fr 1fr 1fr; background: #f9fafb; }
+    .col-hdr { padding: 7px 4px; font-size: 11px; font-weight: 500; color: #6b7280; text-align: center; border-bottom: 0.5px solid #d1d5db; }
+    .col-hdr:not(:first-child) { border-left: 0.5px solid #e5e7eb; }
+
+    .day-row { display: grid; grid-template-columns: 56px 1fr 1fr 1fr; border-bottom: 0.5px solid #e5e7eb; }
+    .day-row:last-child { border-bottom: none; }
+
+    .date-cell { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px 4px; gap: 2px; border-right: 0.5px solid #e5e7eb; }
+    .date-num { font-size: 16px; font-weight: 400; color: #111; line-height: 1; }
+    .date-wd { font-size: 11px; color: #6b7280; }
+    .date-wd.sat { color: #2563eb; }
+    .date-wd.sun { color: #dc2626; }
+
+    .svc-cell { padding: 10px 5px; border-left: 0.5px solid #e5e7eb; display: flex; flex-direction: column; align-items: center; gap: 5px; }
+    .icon-row { font-size: 26px; line-height: 1; }
+
+    .temp-row { display: flex; align-items: center; gap: 3px; font-size: 12px; }
+    .t-hi { color: #dc2626; font-weight: 500; font-size: 13px; }
+    .t-sep { color: #d1d5db; font-size: 11px; }
+    .t-lo { color: #2563eb; font-size: 12px; }
+
+    .rw-row { display: flex; align-items: center; gap: 4px; font-size: 11px; color: #6b7280; }
+    .rain-val { color: #2563eb; }
+    .rain-val.hi { color: #dc2626; }
+    .wind-val.strong { color: #b45309; }
+
+    /* 今日タブ */
+    .today-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 16px; }
+    .today-card { background: #f9fafb; border-radius: 10px; padding: 14px 8px; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+    .today-name { font-size: 11px; color: #6b7280; }
+    .today-icon { font-size: 34px; }
+
+    /* 時間別タブ */
+    .hourly-hdr { display: grid; grid-template-columns: 48px 40px 1fr 1fr 1fr; background: #f9fafb; padding: 7px 12px; font-size: 11px; font-weight: 500; color: #6b7280; border-bottom: 0.5px solid #d1d5db; }
+    .hourly-hdr span { text-align: center; }
+    .hourly-hdr span:first-child { text-align: left; }
+    .hourly-row { display: grid; grid-template-columns: 48px 40px 1fr 1fr 1fr; align-items: center; padding: 10px 12px; border-bottom: 0.5px solid #e5e7eb; font-size: 12px; }
+    .hourly-row:last-child { border-bottom: none; }
+    .hourly-row span { display: flex; align-items: center; justify-content: center; gap: 3px; }
+    .hourly-row span:first-child { justify-content: flex-start; color: #6b7280; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="hdr">天気予報比較サイト</div>
+
+  <div class="search-bar">
+    <i class="ti ti-map-pin" style="font-size:16px;color:#9ca3af;"></i>
+    <input type="text" id="locationInput" value="大阪府大阪市" placeholder="都市名を入力..." />
+    <button onclick="searchLocation()"><i class="ti ti-search" style="font-size:13px;vertical-align:-1px;"></i> 検索</button>
+  </div>
+
+  <div class="loc-bar">
+    <i class="ti ti-current-location" style="font-size:13px;"></i>
+    <span id="locationLabel">大阪府大阪市</span>
+    <span class="badge" id="tabBadge">週間予報</span>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('weekly',this)">週間</div>
+    <div class="tab" onclick="switchTab('today',this)">今日</div>
+    <div class="tab" onclick="switchTab('hourly',this)">時間別</div>
+  </div>
+
+  <div id="mainContent"></div>
+</div>
+
+<script>
+const days = [
+  { date:"6/17", wd:"火", wn:{icon:"⛅",rain:30,hi:28,lo:21,wind:3}, ya:{icon:"🌥️",rain:20,hi:27,lo:21,wind:2}, tk:{icon:"⛅",rain:20,hi:28,lo:20,wind:3} },
+  { date:"6/18", wd:"水", wn:{icon:"🌧️",rain:80,hi:24,lo:20,wind:8}, ya:{icon:"🌧️",rain:70,hi:23,lo:19,wind:9}, tk:{icon:"🌦️",rain:60,hi:25,lo:20,wind:7} },
+  { date:"6/19", wd:"木", wn:{icon:"🌧️",rain:70,hi:23,lo:19,wind:6}, ya:{icon:"🌦️",rain:50,hi:24,lo:19,wind:5}, tk:{icon:"🌧️",rain:70,hi:22,lo:18,wind:7} },
+  { date:"6/20", wd:"金", wn:{icon:"🌦️",rain:40,hi:26,lo:20,wind:4}, ya:{icon:"⛅",rain:30,hi:27,lo:20,wind:3}, tk:{icon:"🌥️",rain:30,hi:26,lo:21,wind:4} },
+  { date:"6/21", wd:"土", wn:{icon:"⛅",rain:20,hi:29,lo:22,wind:3}, ya:{icon:"🌤️",rain:10,hi:30,lo:22,wind:2}, tk:{icon:"⛅",rain:20,hi:29,lo:21,wind:3} },
+  { date:"6/22", wd:"日", wn:{icon:"🌤️",rain:10,hi:31,lo:23,wind:2}, ya:{icon:"☀️",rain:5,hi:32,lo:23,wind:2},  tk:{icon:"🌤️",rain:10,hi:31,lo:22,wind:3} },
+  { date:"6/23", wd:"月", wn:{icon:"☀️",rain:5,hi:32,lo:24,wind:2},  ya:{icon:"☀️",rain:5,hi:33,lo:24,wind:2},  tk:{icon:"🌤️",rain:10,hi:32,lo:23,wind:3} },
+];
+const wdClass = { "土":"sat", "日":"sun" };
+
+function svcCell(s) {
+  const hiRain = s.rain >= 60, hiWind = s.wind >= 7;
+  return `<div class="svc-cell">
+    <div class="icon-row">${s.icon}</div>
+    <div class="temp-row">
+      <i class="ti ti-thermometer" style="font-size:13px;color:#9ca3af;"></i>
+      <span class="t-hi">${s.hi}°</span>
+      <span class="t-sep">/</span>
+      <span class="t-lo">${s.lo}°</span>
+    </div>
+    <div class="rw-row">
+      <i class="ti ti-droplet" style="font-size:12px;color:#2563eb;"></i>
+      <span class="rain-val${hiRain?' hi':''}">${s.rain}%</span>
+      <i class="ti ti-wind" style="font-size:12px;margin-left:2px;"></i>
+      <span class="wind-val${hiWind?' strong':''}">${s.wind}m</span>
+    </div>
+  </div>`;
+}
+
+function buildWeekly() {
+  let html = `<p class="week-label">週間天気予報（3サービス比較）</p>
+  <div class="col-headers">
+    <div class="col-hdr"></div>
+    <div class="col-hdr">ウェザーニュース</div>
+    <div class="col-hdr">Yahoo!天気</div>
+    <div class="col-hdr">tenki.jp</div>
+  </div>`;
+  days.forEach(d => {
+    const wdc = wdClass[d.wd] || "";
+    html += `<div class="day-row">
+      <div class="date-cell">
+        <div class="date-num">${d.date}</div>
+        <div class="date-wd ${wdc}">(${d.wd})</div>
+      </div>
+      ${svcCell(d.wn)}${svcCell(d.ya)}${svcCell(d.tk)}
+    </div>`;
+  });
+  return html;
+}
+
+function buildToday() {
+  const d = days[0];
+  const svcs = [["ウェザーニュース",d.wn],["Yahoo!天気",d.ya],["tenki.jp",d.tk]];
+  return `<p class="week-label">${d.date}（${d.wd}）の予報</p>
+  <div class="today-grid">
+    ${svcs.map(([name,s])=>`<div class="today-card">
+      <div class="today-name">${name}</div>
+      <div class="today-icon">${s.icon}</div>
+      <div class="temp-row">
+        <i class="ti ti-thermometer" style="font-size:13px;color:#9ca3af;"></i>
+        <span class="t-hi">${s.hi}°</span>
+        <span class="t-sep">/</span>
+        <span class="t-lo">${s.lo}°</span>
+      </div>
+      <div class="rw-row">
+        <i class="ti ti-droplet" style="font-size:12px;color:#2563eb;"></i>
+        <span class="rain-val${s.rain>=60?' hi':''}">${s.rain}%</span>
+        <i class="ti ti-wind" style="font-size:12px;margin-left:2px;"></i>
+        <span class="wind-val${s.wind>=7?' strong':''}">${s.wind}m</span>
+      </div>
+    </div>`).join("")}
+  </div>`;
+}
+
+function buildHourly() {
+  const hours = [6,9,12,15,18,21];
+  const data = [
+    {icon:"🌥️",rain:10,temp:23,wind:2},{icon:"⛅",rain:20,temp:25,wind:3},
+    {icon:"⛅",rain:25,temp:28,wind:4},{icon:"🌦️",rain:30,temp:28,wind:5},
+    {icon:"⛅",rain:20,temp:26,wind:4},{icon:"🌥️",rain:15,temp:23,wind:3}
+  ];
+  const rows = hours.map((h,i)=>`<div class="hourly-row">
+    <span style="justify-content:flex-start;color:#6b7280;">${h}時</span>
+    <span style="font-size:20px;">${data[i].icon}</span>
+    <span><i class="ti ti-thermometer" style="font-size:12px;color:#9ca3af;"></i><span style="color:#dc2626;font-weight:500;">${data[i].temp}°</span></span>
+    <span><i class="ti ti-droplet" style="font-size:12px;color:#2563eb;"></i><span style="color:#2563eb;">${data[i].rain}%</span></span>
+    <span><i class="ti ti-wind" style="font-size:12px;color:#6b7280;"></i><span style="color:#6b7280;">${data[i].wind}m/s</span></span>
+  </div>`).join("");
+  return `<div class="hourly-hdr">
+    <span>時刻</span><span></span><span>気温</span><span>降水確率</span><span>風速</span>
+  </div>${rows}`;
+}
+
+function switchTab(tab, el) {
+  document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+  el.classList.add("active");
+  const badges = { weekly:"週間予報", today:"今日の天気", hourly:"時間別予報" };
+  document.getElementById("tabBadge").textContent = badges[tab];
+  const c = document.getElementById("mainContent");
+  if (tab==="weekly") c.innerHTML = buildWeekly();
+  else if (tab==="today") c.innerHTML = buildToday();
+  else c.innerHTML = buildHourly();
+}
+
+function searchLocation() {
+  const val = document.getElementById("locationInput").value.trim();
+  if (val) document.getElementById("locationLabel").textContent = val;
+}
+
+document.getElementById("mainContent").innerHTML = buildWeekly();
+</script>
+</body>
+</html>
