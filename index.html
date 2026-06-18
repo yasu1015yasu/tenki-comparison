@@ -12,204 +12,312 @@
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html, body { height: 100%; background: #f3f4f6; font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', sans-serif; }
-
     .container { max-width: 640px; margin: 0 auto; background: #fff; min-height: 100vh; box-shadow: 0 0 20px rgba(0,0,0,0.08); }
-
     .hdr { background: #2563eb; color: #fff; text-align: center; padding: 16px; font-size: 17px; font-weight: 500; }
-
     .search-bar { display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-bottom: 0.5px solid #e5e7eb; }
     .search-bar input { flex: 1; padding: 8px 11px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 14px; background: #fff; color: #111; outline: none; -webkit-appearance: none; }
     .search-bar input:focus { border-color: #2563eb; }
-    .search-bar button { background: #2563eb; color: #fff; border: none; padding: 8px 14px; border-radius: 8px; font-size: 13px; cursor: pointer; white-space: nowrap; -webkit-tap-highlight-color: transparent; }
-
+    .search-bar button { background: #2563eb; color: #fff; border: none; padding: 8px 14px; border-radius: 8px; font-size: 13px; cursor: pointer; white-space: nowrap; display: flex; align-items: center; gap: 4px; -webkit-tap-highlight-color: transparent; }
+    .search-bar button:disabled { background: #93c5fd; cursor: not-allowed; }
     .loc-bar { padding: 7px 14px; font-size: 12px; color: #6b7280; display: flex; align-items: center; gap: 6px; border-bottom: 0.5px solid #e5e7eb; }
     .badge { background: #eff6ff; color: #1d4ed8; font-size: 11px; padding: 2px 8px; border-radius: 10px; }
-
     .tabs { display: flex; background: #f9fafb; border-bottom: 1px solid #e5e7eb; }
     .tab { flex: 1; padding: 10px; text-align: center; font-size: 14px; color: #6b7280; cursor: pointer; border-bottom: 2px solid transparent; -webkit-tap-highlight-color: transparent; user-select: none; }
     .tab.active { color: #2563eb; border-bottom: 2px solid #2563eb; font-weight: 500; }
-
-    .week-label { text-align: center; font-size: 12px; color: #6b7280; padding: 10px 0 4px; }
-
+    .section-label { text-align: center; font-size: 12px; color: #6b7280; padding: 10px 0 4px; }
+    .model-note { text-align: center; font-size: 10px; color: #9ca3af; padding: 2px 0 8px; }
     .col-headers { display: grid; grid-template-columns: 56px 1fr 1fr 1fr; background: #f9fafb; }
     .col-hdr { padding: 7px 4px; font-size: 11px; font-weight: 500; color: #6b7280; text-align: center; border-bottom: 0.5px solid #d1d5db; }
     .col-hdr:not(:first-child) { border-left: 0.5px solid #e5e7eb; }
-
     .day-row { display: grid; grid-template-columns: 56px 1fr 1fr 1fr; border-bottom: 0.5px solid #e5e7eb; }
     .day-row:last-child { border-bottom: none; }
-
     .date-cell { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px 4px; gap: 2px; border-right: 0.5px solid #e5e7eb; }
-    .date-num { font-size: 16px; font-weight: 400; color: #111; line-height: 1; }
+    .date-num { font-size: 15px; font-weight: 400; color: #111; line-height: 1; }
     .date-wd { font-size: 11px; color: #6b7280; }
     .date-wd.sat { color: #2563eb; }
     .date-wd.sun { color: #dc2626; }
-
-    .svc-cell { padding: 10px 5px; border-left: 0.5px solid #e5e7eb; display: flex; flex-direction: column; align-items: center; gap: 5px; }
-    .icon-row { font-size: 26px; line-height: 1; }
-
-    .temp-row { display: flex; align-items: center; gap: 3px; font-size: 12px; }
+    .svc-cell { padding: 8px 5px; border-left: 0.5px solid #e5e7eb; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+    .icon-row { font-size: 22px; line-height: 1; }
+    .temp-row { display: flex; align-items: center; gap: 3px; }
     .t-hi { color: #dc2626; font-weight: 500; font-size: 13px; }
     .t-sep { color: #d1d5db; font-size: 11px; }
     .t-lo { color: #2563eb; font-size: 12px; }
-
-    .rw-row { display: flex; align-items: center; gap: 4px; font-size: 11px; color: #6b7280; }
-    .rain-val { color: #2563eb; }
-    .rain-val.hi { color: #dc2626; }
+    .rw-row { display: flex; align-items: center; gap: 4px; color: #6b7280; }
+    .rain-val { font-size: 13px; font-weight: 500; color: #1e3a5f; }
+    .wind-val { font-size: 11px; color: #6b7280; }
     .wind-val.strong { color: #b45309; }
-
-    /* 今日タブ */
-    .today-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 16px; }
-    .today-card { background: #f9fafb; border-radius: 10px; padding: 14px 8px; display: flex; flex-direction: column; align-items: center; gap: 6px; }
-    .today-name { font-size: 11px; color: #6b7280; }
-    .today-icon { font-size: 34px; }
-
-    /* 時間別タブ */
-    .hourly-hdr { display: grid; grid-template-columns: 48px 40px 1fr 1fr 1fr; background: #f9fafb; padding: 7px 12px; font-size: 11px; font-weight: 500; color: #6b7280; border-bottom: 0.5px solid #d1d5db; }
-    .hourly-hdr span { text-align: center; }
-    .hourly-hdr span:first-child { text-align: left; }
-    .hourly-row { display: grid; grid-template-columns: 48px 40px 1fr 1fr 1fr; align-items: center; padding: 10px 12px; border-bottom: 0.5px solid #e5e7eb; font-size: 12px; }
-    .hourly-row:last-child { border-bottom: none; }
-    .hourly-row span { display: flex; align-items: center; justify-content: center; gap: 3px; }
-    .hourly-row span:first-child { justify-content: flex-start; color: #6b7280; }
+    .today-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; padding: 16px; }
+    .today-card { border-radius: 10px; padding: 14px 8px; display: flex; flex-direction: column; align-items: center; gap: 6px; border: 0.5px solid #e5e7eb; }
+    .today-name { font-size: 11px; color: #6b7280; font-weight: 500; text-align: center; }
+    .today-icon { font-size: 32px; }
+    .hourly-wrap { overflow-x: auto; }
+    .hourly-table { width: 100%; border-collapse: collapse; min-width: 460px; font-size: 12px; }
+    .hourly-table th { background: #f9fafb; padding: 7px 6px; font-size: 11px; font-weight: 500; color: #6b7280; text-align: center; border-bottom: 0.5px solid #d1d5db; }
+    .hourly-table th.time-th { text-align: left; padding-left: 12px; }
+    .hourly-table td { padding: 8px 5px; text-align: center; border-bottom: 0.5px solid #e5e7eb; vertical-align: middle; }
+    .hourly-table td.time-td { text-align: left; padding-left: 12px; color: #6b7280; font-size: 12px; white-space: nowrap; }
+    .hourly-table tr:last-child td { border-bottom: none; }
+    .h-svc { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+    .h-icon { font-size: 18px; }
+    .loading { padding: 40px; text-align: center; color: #6b7280; font-size: 14px; }
+    .error-msg { padding: 20px; text-align: center; color: #dc2626; font-size: 13px; background: #fef2f2; margin: 12px; border-radius: 8px; }
+    .spinner { display: inline-block; width: 20px; height: 20px; border: 2px solid #dbeafe; border-top: 2px solid #2563eb; border-radius: 50%; animation: spin 0.8s linear infinite; margin-right: 8px; vertical-align: middle; }
+    @keyframes spin { to { transform: rotate(360deg); } }
   </style>
 </head>
 <body>
 <div class="container">
   <div class="hdr">天気予報比較サイト</div>
-
   <div class="search-bar">
     <i class="ti ti-map-pin" style="font-size:16px;color:#9ca3af;"></i>
-    <input type="text" id="locationInput" value="大阪府大阪市" placeholder="都市名を入力..." />
-    <button onclick="searchLocation()"><i class="ti ti-search" style="font-size:13px;vertical-align:-1px;"></i> 検索</button>
+    <input type="text" id="locationInput" value="大阪市" placeholder="都市名を入力（例：東京、札幌）" />
+    <button id="searchBtn" onclick="handleSearch()">
+      <i class="ti ti-search" style="font-size:13px;"></i> 検索
+    </button>
   </div>
-
   <div class="loc-bar">
     <i class="ti ti-current-location" style="font-size:13px;"></i>
-    <span id="locationLabel">大阪府大阪市</span>
+    <span id="locationLabel">大阪市</span>
     <span class="badge" id="tabBadge">週間予報</span>
   </div>
-
   <div class="tabs">
     <div class="tab active" onclick="switchTab('weekly',this)">週間</div>
     <div class="tab" onclick="switchTab('today',this)">今日</div>
     <div class="tab" onclick="switchTab('hourly',this)">時間別</div>
   </div>
-
-  <div id="mainContent"></div>
+  <div id="mainContent"><div class="loading"><span class="spinner"></span>データを取得中...</div></div>
 </div>
 
 <script>
-const days = [
-  { date:"6/17", wd:"火", wn:{icon:"⛅",rain:30,hi:28,lo:21,wind:3}, ya:{icon:"🌥️",rain:20,hi:27,lo:21,wind:2}, tk:{icon:"⛅",rain:20,hi:28,lo:20,wind:3} },
-  { date:"6/18", wd:"水", wn:{icon:"🌧️",rain:80,hi:24,lo:20,wind:8}, ya:{icon:"🌧️",rain:70,hi:23,lo:19,wind:9}, tk:{icon:"🌦️",rain:60,hi:25,lo:20,wind:7} },
-  { date:"6/19", wd:"木", wn:{icon:"🌧️",rain:70,hi:23,lo:19,wind:6}, ya:{icon:"🌦️",rain:50,hi:24,lo:19,wind:5}, tk:{icon:"🌧️",rain:70,hi:22,lo:18,wind:7} },
-  { date:"6/20", wd:"金", wn:{icon:"🌦️",rain:40,hi:26,lo:20,wind:4}, ya:{icon:"⛅",rain:30,hi:27,lo:20,wind:3}, tk:{icon:"🌥️",rain:30,hi:26,lo:21,wind:4} },
-  { date:"6/21", wd:"土", wn:{icon:"⛅",rain:20,hi:29,lo:22,wind:3}, ya:{icon:"🌤️",rain:10,hi:30,lo:22,wind:2}, tk:{icon:"⛅",rain:20,hi:29,lo:21,wind:3} },
-  { date:"6/22", wd:"日", wn:{icon:"🌤️",rain:10,hi:31,lo:23,wind:2}, ya:{icon:"☀️",rain:5,hi:32,lo:23,wind:2},  tk:{icon:"🌤️",rain:10,hi:31,lo:22,wind:3} },
-  { date:"6/23", wd:"月", wn:{icon:"☀️",rain:5,hi:32,lo:24,wind:2},  ya:{icon:"☀️",rain:5,hi:33,lo:24,wind:2},  tk:{icon:"🌤️",rain:10,hi:32,lo:23,wind:3} },
+const MODELS = [
+  { key: 'jma',   label: 'JMA（気象庁）',  model: 'jma_seamless' },
+  { key: 'gfs',   label: 'GFS（米国）',    model: 'gfs_seamless' },
+  { key: 'ecmwf', label: 'ECMWF（欧州）',  model: 'ecmwf_ifs025' },
 ];
-const wdClass = { "土":"sat", "日":"sun" };
+
+function rainBg(rain) {
+  if (rain <= 0)  return 'transparent';
+  if (rain <= 10) return 'rgba(219,234,254,0.3)';
+  if (rain <= 20) return 'rgba(191,219,254,0.5)';
+  if (rain <= 30) return 'rgba(147,197,253,0.5)';
+  if (rain <= 40) return 'rgba(96,165,250,0.4)';
+  if (rain <= 50) return 'rgba(59,130,246,0.35)';
+  if (rain <= 60) return 'rgba(37,99,235,0.35)';
+  if (rain <= 70) return 'rgba(29,78,216,0.4)';
+  if (rain <= 80) return 'rgba(30,58,138,0.45)';
+  return 'rgba(23,37,84,0.5)';
+}
+
+function wmoIcon(code) {
+  if (code === 0) return '☀️';
+  if (code <= 2)  return '⛅';
+  if (code <= 3)  return '☁️';
+  if (code <= 48) return '🌫️';
+  if (code <= 55) return '🌧️';
+  if (code <= 57) return '🌧️';
+  if (code <= 61) return '☂️';
+  if (code <= 65) return '☂️';
+  if (code <= 67) return '☂️';
+  if (code <= 71) return '🌨️';
+  if (code <= 77) return '❄️';
+  if (code <= 82) return '☂️';
+  if (code <= 86) return '🌨️';
+  if (code <= 99) return '⛈️';
+  return '🌡️';
+}
+
+async function geocode(city) {
+  const url = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1&language=ja`;
+  const res = await fetch(url);
+  const data = await res.json();
+  if (!data.results || data.results.length === 0) throw new Error(`「${city}」が見つかりませんでした`);
+  return { lat: data.results[0].latitude, lon: data.results[0].longitude, name: data.results[0].name };
+}
+
+async function fetchModel(lat, lon, model) {
+  const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}`
+    + `&daily=weathercode,temperature_2m_max,temperature_2m_min,precipitation_probability_max,windspeed_10m_max`
+    + `&hourly=weathercode,temperature_2m,precipitation_probability,windspeed_10m`
+    + `&timezone=Asia%2FTokyo&forecast_days=7&models=${model}`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`API error: ${res.status}`);
+  return await res.json();
+}
+
+function weekday(dateStr) {
+  return ['日','月','火','水','木','金','土'][new Date(dateStr).getDay()];
+}
+function mmdd(dateStr) {
+  const d = new Date(dateStr);
+  return `${d.getMonth()+1}/${d.getDate()}`;
+}
+
+let state = { weekly: null, hourly: null, currentTab: 'weekly' };
+
+async function loadData(city) {
+  const btn = document.getElementById('searchBtn');
+  btn.disabled = true;
+  document.getElementById('mainContent').innerHTML = '<div class="loading"><span class="spinner"></span>データを取得中...</div>';
+  try {
+    const geo = await geocode(city);
+    document.getElementById('locationLabel').textContent = geo.name;
+    const results = await Promise.all(MODELS.map(m => fetchModel(geo.lat, geo.lon, m.model)));
+
+    state.weekly = results[0].daily.time.map((dateStr, i) => ({
+      date: mmdd(dateStr),
+      wd: weekday(dateStr),
+      svcs: results.map(r => ({
+        icon: wmoIcon(r.daily.weathercode[i]),
+        rain: r.daily.precipitation_probability_max[i] ?? 0,
+        hi:   Math.round(r.daily.temperature_2m_max[i]),
+        lo:   Math.round(r.daily.temperature_2m_min[i]),
+        wind: Math.round(r.daily.windspeed_10m_max[i]),
+      }))
+    }));
+
+    const todayPrefix = results[0].daily.time[0];
+    const hourlyIdxs = results[0].hourly.time
+      .map((t, i) => ({ t, i }))
+      .filter(({ t }) => t.startsWith(todayPrefix) && [0,3,6,9,12,15,18,21].includes(new Date(t).getHours()));
+
+    state.hourly = hourlyIdxs.map(({ t, i }) => ({
+      time: `${new Date(t).getHours()}時`,
+      svcs: results.map(r => ({
+        icon: wmoIcon(r.hourly.weathercode[i]),
+        rain: r.hourly.precipitation_probability[i] ?? 0,
+        temp: Math.round(r.hourly.temperature_2m[i]),
+        wind: Math.round(r.hourly.windspeed_10m[i]),
+      }))
+    }));
+
+    renderCurrentTab();
+  } catch (e) {
+    document.getElementById('mainContent').innerHTML = `<div class="error-msg">⚠️ ${e.message}</div>`;
+  } finally {
+    btn.disabled = false;
+  }
+}
 
 function svcCell(s) {
-  const hiRain = s.rain >= 60, hiWind = s.wind >= 7;
-  return `<div class="svc-cell">
+  const bg = rainBg(s.rain);
+  return `<div class="svc-cell" style="background:${bg};">
     <div class="icon-row">${s.icon}</div>
     <div class="temp-row">
-      <i class="ti ti-thermometer" style="font-size:13px;color:#9ca3af;"></i>
-      <span class="t-hi">${s.hi}°</span>
-      <span class="t-sep">/</span>
-      <span class="t-lo">${s.lo}°</span>
+      <i class="ti ti-thermometer" style="font-size:12px;color:#9ca3af;"></i>
+      <span class="t-hi">${s.hi}°</span><span class="t-sep">/</span><span class="t-lo">${s.lo}°</span>
     </div>
     <div class="rw-row">
-      <i class="ti ti-droplet" style="font-size:12px;color:#2563eb;"></i>
-      <span class="rain-val${hiRain?' hi':''}">${s.rain}%</span>
-      <i class="ti ti-wind" style="font-size:12px;margin-left:2px;"></i>
-      <span class="wind-val${hiWind?' strong':''}">${s.wind}m</span>
+      <i class="ti ti-droplet" style="font-size:11px;color:#2563eb;"></i>
+      <span class="rain-val">${s.rain}%</span>
+      <i class="ti ti-wind" style="font-size:11px;margin-left:2px;"></i>
+      <span class="wind-val${s.wind>=10?' strong':''}">${s.wind}m</span>
     </div>
   </div>`;
 }
 
 function buildWeekly() {
-  let html = `<p class="week-label">週間天気予報（3サービス比較）</p>
+  const wdClass = { "土":"sat","日":"sun" };
+  let html = `<p class="section-label">週間天気予報</p>
+  <p class="model-note">JMA（気象庁モデル） / GFS（米国モデル） / ECMWF（欧州モデル）</p>
   <div class="col-headers">
     <div class="col-hdr"></div>
-    <div class="col-hdr">ウェザーニュース</div>
-    <div class="col-hdr">Yahoo!天気</div>
-    <div class="col-hdr">tenki.jp</div>
+    ${MODELS.map(m=>`<div class="col-hdr">${m.label}</div>`).join('')}
   </div>`;
-  days.forEach(d => {
-    const wdc = wdClass[d.wd] || "";
+  state.weekly.forEach(d => {
+    const wdc = wdClass[d.wd] || '';
     html += `<div class="day-row">
       <div class="date-cell">
         <div class="date-num">${d.date}</div>
         <div class="date-wd ${wdc}">(${d.wd})</div>
       </div>
-      ${svcCell(d.wn)}${svcCell(d.ya)}${svcCell(d.tk)}
+      ${d.svcs.map(s => svcCell(s)).join('')}
     </div>`;
   });
   return html;
 }
 
 function buildToday() {
-  const d = days[0];
-  const svcs = [["ウェザーニュース",d.wn],["Yahoo!天気",d.ya],["tenki.jp",d.tk]];
-  return `<p class="week-label">${d.date}（${d.wd}）の予報</p>
+  const d = state.weekly[0];
+  return `<p class="section-label">${d.date}（${d.wd}）の予報</p>
+  <p class="model-note">JMA（気象庁モデル） / GFS（米国モデル） / ECMWF（欧州モデル）</p>
   <div class="today-grid">
-    ${svcs.map(([name,s])=>`<div class="today-card">
-      <div class="today-name">${name}</div>
+    ${d.svcs.map((s,mi) => `<div class="today-card" style="background:${rainBg(s.rain)};">
+      <div class="today-name">${MODELS[mi].label}</div>
       <div class="today-icon">${s.icon}</div>
       <div class="temp-row">
         <i class="ti ti-thermometer" style="font-size:13px;color:#9ca3af;"></i>
-        <span class="t-hi">${s.hi}°</span>
-        <span class="t-sep">/</span>
-        <span class="t-lo">${s.lo}°</span>
+        <span class="t-hi">${s.hi}°</span><span class="t-sep">/</span><span class="t-lo">${s.lo}°</span>
       </div>
       <div class="rw-row">
-        <i class="ti ti-droplet" style="font-size:12px;color:#2563eb;"></i>
-        <span class="rain-val${s.rain>=60?' hi':''}">${s.rain}%</span>
-        <i class="ti ti-wind" style="font-size:12px;margin-left:2px;"></i>
-        <span class="wind-val${s.wind>=7?' strong':''}">${s.wind}m</span>
+        <i class="ti ti-droplet" style="font-size:11px;color:#2563eb;"></i>
+        <span class="rain-val">${s.rain}%</span>
+        <i class="ti ti-wind" style="font-size:11px;margin-left:2px;"></i>
+        <span class="wind-val${s.wind>=10?' strong':''}">${s.wind}m</span>
       </div>
-    </div>`).join("")}
+    </div>`).join('')}
   </div>`;
 }
 
 function buildHourly() {
-  const hours = [6,9,12,15,18,21];
-  const data = [
-    {icon:"🌥️",rain:10,temp:23,wind:2},{icon:"⛅",rain:20,temp:25,wind:3},
-    {icon:"⛅",rain:25,temp:28,wind:4},{icon:"🌦️",rain:30,temp:28,wind:5},
-    {icon:"⛅",rain:20,temp:26,wind:4},{icon:"🌥️",rain:15,temp:23,wind:3}
-  ];
-  const rows = hours.map((h,i)=>`<div class="hourly-row">
-    <span style="justify-content:flex-start;color:#6b7280;">${h}時</span>
-    <span style="font-size:20px;">${data[i].icon}</span>
-    <span><i class="ti ti-thermometer" style="font-size:12px;color:#9ca3af;"></i><span style="color:#dc2626;font-weight:500;">${data[i].temp}°</span></span>
-    <span><i class="ti ti-droplet" style="font-size:12px;color:#2563eb;"></i><span style="color:#2563eb;">${data[i].rain}%</span></span>
-    <span><i class="ti ti-wind" style="font-size:12px;color:#6b7280;"></i><span style="color:#6b7280;">${data[i].wind}m/s</span></span>
-  </div>`).join("");
-  return `<div class="hourly-hdr">
-    <span>時刻</span><span></span><span>気温</span><span>降水確率</span><span>風速</span>
-  </div>${rows}`;
+  const rows = state.hourly.map(h => `<tr>
+    <td class="time-td">${h.time}</td>
+    ${h.svcs.map(s => `<td style="background:${rainBg(s.rain)};border-left:0.5px solid #e5e7eb;">
+      <div class="h-svc">
+        <div class="h-icon">${s.icon}</div>
+        <div class="temp-row"><span class="t-hi" style="font-size:12px;">${s.temp}°</span></div>
+        <div class="rw-row" style="font-size:10px;">
+          <i class="ti ti-droplet" style="font-size:10px;color:#2563eb;"></i>
+          <span class="rain-val" style="font-size:12px;">${s.rain}%</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:2px;font-size:10px;color:#6b7280;">
+          <i class="ti ti-wind" style="font-size:10px;"></i>
+          <span class="${s.wind>=10?'wind-val strong':'wind-val'}">${s.wind}m</span>
+        </div>
+      </div>
+    </td>`).join('')}
+  </tr>`).join('');
+
+  return `<p class="section-label">時間別天気予報（今日）</p>
+  <p class="model-note">JMA（気象庁モデル） / GFS（米国モデル） / ECMWF（欧州モデル）</p>
+  <div class="hourly-wrap">
+  <table class="hourly-table">
+    <thead><tr>
+      <th class="time-th" rowspan="2" style="vertical-align:bottom;padding-bottom:7px;">時刻</th>
+      ${MODELS.map(m=>`<th style="border-left:0.5px solid #e5e7eb;">${m.label}</th>`).join('')}
+    </tr><tr>
+      ${MODELS.map(()=>`<th style="font-size:10px;border-left:0.5px solid #e5e7eb;font-weight:400;color:#9ca3af;">天気/気温/降水/風速</th>`).join('')}
+    </tr></thead>
+    <tbody>${rows}</tbody>
+  </table></div>`;
 }
 
-function switchTab(tab, el) {
-  document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
-  el.classList.add("active");
-  const badges = { weekly:"週間予報", today:"今日の天気", hourly:"時間別予報" };
-  document.getElementById("tabBadge").textContent = badges[tab];
-  const c = document.getElementById("mainContent");
-  if (tab==="weekly") c.innerHTML = buildWeekly();
-  else if (tab==="today") c.innerHTML = buildToday();
+function renderCurrentTab() {
+  const c = document.getElementById('mainContent');
+  if (state.currentTab === 'weekly') c.innerHTML = buildWeekly();
+  else if (state.currentTab === 'today') c.innerHTML = buildToday();
   else c.innerHTML = buildHourly();
 }
 
-function searchLocation() {
-  const val = document.getElementById("locationInput").value.trim();
-  if (val) document.getElementById("locationLabel").textContent = val;
+function switchTab(tab, el) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  state.currentTab = tab;
+  const badges = { weekly:'週間予報', today:'今日の天気', hourly:'時間別予報' };
+  document.getElementById('tabBadge').textContent = badges[tab];
+  renderCurrentTab();
 }
 
-document.getElementById("mainContent").innerHTML = buildWeekly();
+function handleSearch() {
+  const val = document.getElementById('locationInput').value.trim();
+  if (!val) return;
+  loadData(val);
+}
+
+document.getElementById('locationInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') handleSearch();
+});
+
+loadData('大阪市');
 </script>
 </body>
 </html>
